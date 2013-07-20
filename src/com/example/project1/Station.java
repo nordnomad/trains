@@ -1,6 +1,11 @@
 package com.example.project1;
 
 public class Station {
-    public Long id;
+    public int id;
     public String name;
+
+    @Override
+    public String toString() {
+        return name;
+    }
 }

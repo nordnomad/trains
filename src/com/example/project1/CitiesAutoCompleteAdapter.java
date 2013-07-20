@@ -1,16 +1,20 @@
 package com.example.project1;
 
 import android.content.Context;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Filter;
 import android.widget.Filterable;
+import android.widget.TextView;
 
 import java.util.List;
 
 import static com.example.project1.ServerConnector.listCities;
 
-public class CitiesAutoCompleteAdapter extends ArrayAdapter<String> implements Filterable {
-    private List<String> resultList;
+public class CitiesAutoCompleteAdapter extends ArrayAdapter<Station> implements Filterable {
+    private List<Station> stations;
 
     public CitiesAutoCompleteAdapter(Context context, int textViewResourceId) {
         super(context, textViewResourceId);
@@ -23,12 +27,11 @@ public class CitiesAutoCompleteAdapter extends ArrayAdapter<String> implements F
             protected FilterResults performFiltering(CharSequence constraint) {
                 FilterResults filterResults = new FilterResults();
                 if (constraint != null) {
-                    // Retrieve the autocomplete results.
-                    ServerConnector.sendRequest(RestURL.SEARCH,null);
-                    resultList = listCities(constraint.toString());
+                    // Retrieve the autocompleter results.
+                    stations = listCities(constraint.toString());
                     // Assign the data to the FilterResults
-                    filterResults.values = resultList;
-                    filterResults.count = resultList.size();
+                    filterResults.values = stations;
+                    filterResults.count = stations.size();
 
                 }
                 return filterResults;
@@ -48,11 +51,11 @@ public class CitiesAutoCompleteAdapter extends ArrayAdapter<String> implements F
 
     @Override
     public int getCount() {
-        return resultList.size();
+        return stations.size();
     }
 
     @Override
-    public String getItem(int index) {
-        return resultList.get(index);
+    public Station getItem(int index) {
+        return stations.get(index);
     }
 }

@@ -2,26 +2,31 @@ package com.example.project1;
 
 import android.app.Activity;
 import android.app.DialogFragment;
+import android.app.FragmentTransaction;
 import android.os.Bundle;
 import android.view.View;
-import android.webkit.ConsoleMessage;
-import android.webkit.WebChromeClient;
-import android.webkit.WebView;
-import android.webkit.WebViewClient;
+import android.webkit.*;
+import android.widget.AdapterView;
 import android.widget.AutoCompleteTextView;
-import android.widget.Toast;
+import android.widget.Button;
 
-import java.util.UUID;
+import static android.R.layout.simple_dropdown_item_1line;
+import static android.widget.AdapterView.OnItemClickListener;
 
-public class MyActivity extends Activity {
+public class MyActivity extends Activity implements NoticeDialogListener {
 
-    AutoCompleteTextView cityFrom;
-    AutoCompleteTextView cityTo;
+    AutoCompleteTextView stationFromView;
+    AutoCompleteTextView stationTillView;
+    Button dateButton;
+    Button timeButton;
     WebView webView;
-    String token;
-
     int stationFromId;
     int stationTillId;
+    String dateDep;
+    String timeDep;
+    String gvToken;
+    String cookie;
+
     /**
      * Called when the activity is first created.
      */
@@ -29,13 +34,27 @@ public class MyActivity extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
-        cityFrom = (AutoCompleteTextView) findViewById(R.id.city_from);
-        CitiesAutoCompleteAdapter adapterFrom = new CitiesAutoCompleteAdapter(this, android.R.layout.simple_dropdown_item_1line);
-        cityFrom.setAdapter(adapterFrom);
+        stationFromView = (AutoCompleteTextView) findViewById(R.id.city_from);
+        CitiesAutoCompleteAdapter adapterFrom = new CitiesAutoCompleteAdapter(this, simple_dropdown_item_1line);
+        stationFromView.setAdapter(adapterFrom);
+        stationFromView.setOnItemClickListener(new OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                stationFromId = ((Station) parent.getAdapter().getItem(position)).id;
+            }
+        });
 
-        cityTo = (AutoCompleteTextView) findViewById(R.id.city_to);
-        CitiesAutoCompleteAdapter adapterTo = new CitiesAutoCompleteAdapter(this, android.R.layout.simple_dropdown_item_1line);
-        cityTo.setAdapter(adapterTo);
+        stationTillView = (AutoCompleteTextView) findViewById(R.id.city_to);
+        CitiesAutoCompleteAdapter adapterTo = new CitiesAutoCompleteAdapter(this, simple_dropdown_item_1line);
+        stationTillView.setAdapter(adapterTo);
+        stationTillView.setOnItemClickListener(new OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                stationTillId = ((Station) parent.getAdapter().getItem(position)).id;
+            }
+        });
+        dateButton = (Button) findViewById(R.id.date);
+        timeButton = (Button) findViewById(R.id.time);
 
         webView = new WebView(this);
         webView.getSettings().setJavaScriptEnabled(true);
@@ -54,26 +73,52 @@ public class MyActivity extends Activity {
         });
         webView.setWebChromeClient(new WebChromeClient() {
             public boolean onConsoleMessage(ConsoleMessage cm) {
-                token = cm.message();
-                Toast.makeText(MyActivity.this, cm.message(), 1).show();
+                gvToken = cm.message();
                 return true;
             }
         });
-//        ServerConnector.load();
-        ServerConnector.sendRequest("http://booking.uz.gov.ua/ru/purchase/search/", "");
+        webView.loadUrl("http://booking.uz.gov.ua/ru/");
+
+        CookieManager cookieManager = CookieManager.getInstance();
+        cookieManager.setAcceptCookie(true);
+        cookie = cookieManager.getCookie("http://booking.uz.gov.ua/ru/");
     }
 
     public void showDatePickerDialog(View v) {
-        DialogFragment newFragment = new DatePickerFragment();
-        newFragment.show(getFragmentManager(), "datePicker");
+        DialogFragment datePicker = new DatePickerFragment();
+        datePicker.show(getFragmentManager(), "datePicker");
+
     }
 
     public void showTimePickerDialog(View v) {
-        DialogFragment newFragment = new TimePickerFragment();
-        newFragment.show(getFragmentManager(), "timePicker");
+        DialogFragment timePicker = new TimePickerFragment();
+        timePicker.show(getFragmentManager(), "timePicker");
     }
 
     public void searchTrains(View v) {
+        TrainsListFragment trains = new TrainsListFragment(stationFromId, stationTillId, dateDep, timeDep, gvToken, cookie);
+        FragmentTransaction ft = getFragmentManager().beginTransaction();
+        ft.add(R.id.frgmCont, trains, "trains");
+        ft.commit();
+     //   ServerConnector.searchTrains(stationFromId, stationTillId, dateDep, timeDep, gvToken, cookie);
+    }
 
+    @Override
+    public void onDialogPositiveClick(DialogFragment dialog) {
+        switch (dialog.getTag()) {
+            case "datePicker":
+                dateDep = ((DatePickerFragment) dialog).getDate();
+                dateButton.setText(dateDep);
+                break;
+            case "timePicker":
+                timeDep = ((TimePickerFragment) dialog).getTime();
+                timeButton.setText(timeDep);
+                break;
+        }
+    }
+
+    @Override
+    public void onDialogNegativeClick(DialogFragment dialog) {
+        dialog.dismiss();
     }
 }

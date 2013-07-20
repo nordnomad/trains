@@ -1,38 +1,51 @@
 package com.example.project1;
 
+import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
-import android.app.TimePickerDialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.widget.TimePicker;
 
-import java.util.Calendar;
+public class TimePickerFragment extends DialogFragment {
+    NoticeDialogListener mListener;
+    TimePicker timePicker;
 
-import static android.app.TimePickerDialog.OnTimeSetListener;
-
-/**
- * Created with IntelliJ IDEA.
- * User: COMFY
- * Date: 7/14/13
- * Time: 8:59 PM
- * To change this template use File | Settings | File Templates.
- */
-public class TimePickerFragment extends DialogFragment implements OnTimeSetListener {
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        // Use the current time as the default values for the picker
-        Calendar c = Calendar.getInstance();
-        int year = c.get(Calendar.YEAR);
-        int month = c.get(Calendar.MONTH);
-        int day = c.get(Calendar.DAY_OF_MONTH);
-        int hour = c.get(Calendar.HOUR_OF_DAY);
-        int minute = c.get(Calendar.MINUTE);
-        // Create a new instance of TimePickerFragment and return it
-        return new TimePickerDialog(getActivity(), this, hour, minute, true);
+        timePicker = new TimePicker(getActivity());
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setView(timePicker)
+                .setPositiveButton("Готово", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        mListener.onDialogPositiveClick(TimePickerFragment.this);
+                    }
+                }).setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                mListener.onDialogNegativeClick(TimePickerFragment.this);
+            }
+        });
+        return builder.create();
+    }
+
+    public String getTime() {
+        return String.format("%02d:%02d", timePicker.getCurrentHour(), timePicker.getCurrentMinute());
     }
 
     @Override
-    public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-        //To change body of implemented methods use File | Settings | File Templates.
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        // Verify that the host activity implements the callback interface
+        try {
+            // Instantiate the NoticeDialogListener so we can send events to the host
+            mListener = (NoticeDialogListener) activity;
+        } catch (ClassCastException e) {
+            // The activity doesn't implement the interface, throw exception
+            throw new ClassCastException(activity.toString()
+                    + " must implement NoticeDialogListener");
+        }
     }
 }

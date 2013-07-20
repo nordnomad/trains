@@ -6,8 +6,6 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.BasicHttpParams;
-import org.apache.http.protocol.BasicHttpContext;
-import org.apache.http.protocol.HttpContext;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -25,7 +23,6 @@ import static com.example.project1.RestURL.SEARCH;
 
 public class ServerConnector {
     private static final String TAG = ServerConnector.class.getSimpleName();
-
     private static final String GV_AJAX_VAL = "1";
     private static final String GV_REFERER_VAL = "http://booking.uz.gov.ua/ru/";
 
@@ -35,20 +32,18 @@ public class ServerConnector {
         DefaultHttpClient httpClient = new DefaultHttpClient();
         HttpPost httpPost = new HttpPost(url);
 
-        BasicHttpParams httpParams = new BasicHttpParams();
-        httpParams.setLongParameter("station_id_from", 2214000);
-        httpParams.setLongParameter("station_id_till", 2204001);
-        httpParams.setParameter("date_dep", "01.08.2013");
-        httpParams.setParameter("time_dep", "00:00");
-
-        httpPost.setParams(httpParams);
-
-
-        httpPost.addHeader("GV-Ajax", "1");
-        httpPost.addHeader("GV-Referer", "http://booking.uz.gov.ua/ru/");
-        httpPost.addHeader("GV-Token", "f5a4f587d84e839024385fc65c6c5536");
-        httpPost.addHeader("Cookie", "_gv_sessid=57b0kvfig7va2ct6m0k9ojnqa0; _gv_lang=ru; HTTPSERVERID=server1; __utma=31515437.351867492.1374274510.1374274510.1374309850.2; __utmb=31515437.2.10.1374309850; __utmc=31515437; __utmz=31515437.1374274510.1.1.utmcsr=(direct)|utmccn=(direct)|utmcmd=(none)");
-
+//        BasicHttpParams httpParams = new BasicHttpParams();
+//        httpParams.setLongParameter("station_id_from", 2214000);
+//        httpParams.setLongParameter("station_id_till", 2204001);
+//        httpParams.setParameter("date_dep", "01.08.2013");
+//        httpParams.setParameter("time_dep", "00:00");
+//
+//        httpPost.setParams(httpParams);
+//
+//        httpPost.addHeader("GV-Ajax", "1");
+//        httpPost.addHeader("GV-Referer", "http://booking.uz.gov.ua/ru/");
+//        httpPost.addHeader("GV-Token", "f5a4f587d84e839024385fc65c6c5536");
+//        httpPost.addHeader("Cookie", "_gv_sessid=57b0kvfig7va2ct6m0k9ojnqa0; _gv_lang=ru; HTTPSERVERID=server1; __utma=31515437.351867492.1374274510.1374274510.1374309850.2; __utmb=31515437.2.10.1374309850; __utmc=31515437; __utmz=31515437.1374274510.1.1.utmcsr=(direct)|utmccn=(direct)|utmcmd=(none)");
 
         InputStream is = null;
         BufferedReader br = null;
@@ -81,14 +76,17 @@ public class ServerConnector {
         return String.format(url, params);
     }
 
-    public static List<String> listCities(String cityNamePart) {
+    public static List<Station> listCities(String cityNamePart) {
         JSONObject jsonCity = sendRequest(RestURL.CITIES, cityNamePart);
-        List<String> result = new ArrayList<>();
+        List<Station> result = new ArrayList<>();
         try {
             JSONArray jsonArray = jsonCity.getJSONArray("value");
             for (int i = 0; i < jsonArray.length(); i++) {
                 JSONObject jsonObject = jsonArray.getJSONObject(i);
-                result.add(jsonObject.getString("title"));
+                Station station = new Station();
+                station.name = jsonObject.getString("title");
+                station.id = jsonObject.getInt("station_id");
+                result.add(station);
             }
         } catch (JSONException e) {
             Log.e(TAG, e.getMessage(), e);
@@ -96,7 +94,7 @@ public class ServerConnector {
         return result;
     }
 
-    public static List<String> searchTrains(long fromId, long tillId, String dateDep, String timeDep, String gvToken, String cookie){
+    public static List<String> searchTrains(long fromId, long tillId, String dateDep, String timeDep, String gvToken, String cookie) {
         DefaultHttpClient client = new DefaultHttpClient();
         HttpPost post = new HttpPost(SEARCH);
 
@@ -126,7 +124,7 @@ public class ServerConnector {
                 sb.append(line);
             }
 //            return new JSONObject(sb.toString());
-        } catch (IOException /*| JSONException*/ e) {
+        } catch (Exception /*| JSONException*/ e) {
             Log.e(TAG, e.getMessage(), e);
         } finally {
             try {

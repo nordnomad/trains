@@ -1,38 +1,54 @@
 package com.example.project1;
 
+import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.widget.DatePicker;
 
-import java.util.Calendar;
+import static android.app.DatePickerDialog.OnClickListener;
 
-import static android.app.DatePickerDialog.OnDateSetListener;
+public class DatePickerFragment extends DialogFragment {
 
-/**
- * Created with IntelliJ IDEA.
- * User: COMFY
- * Date: 7/14/13
- * Time: 8:30 PM
- * To change this template use File | Settings | File Templates.
- */
-public class DatePickerFragment extends DialogFragment implements OnDateSetListener {
+    NoticeDialogListener mListener;
+    DatePicker datePicker;
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        // Use the current time as the default values for the picker
-        Calendar c = Calendar.getInstance();
-        int year = c.get(Calendar.YEAR);
-        int month = c.get(Calendar.MONTH);
-        int day = c.get(Calendar.DAY_OF_MONTH);
-        int hour = c.get(Calendar.HOUR_OF_DAY);
-        int minute = c.get(Calendar.MINUTE);
-        // Create a new instance of TimePickerFragment and return it
-        return new android.app.DatePickerDialog(getActivity(), this, year, month, day);
+        datePicker = new DatePicker(getActivity());
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setView(datePicker)
+                .setPositiveButton("Готово", new OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        mListener.onDialogPositiveClick(DatePickerFragment.this);
+                    }
+                }).setNegativeButton("Отмена", new OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        mListener.onDialogNegativeClick(DatePickerFragment.this);
+                    }
+        });
+        return builder.create();
+    }
+
+    public String getDate() {
+        return String.format("%02d.%02d.%d", datePicker.getDayOfMonth(), datePicker.getMonth() + 1, datePicker.getYear());
     }
 
     @Override
-    public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
-        //To change body of implemented methods use File | Settings | File Templates.
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        // Verify that the host activity implements the callback interface
+        try {
+            // Instantiate the NoticeDialogListener so we can send events to the host
+            mListener = (NoticeDialogListener) activity;
+        } catch (ClassCastException e) {
+            // The activity doesn't implement the interface, throw exception
+            throw new ClassCastException(activity.toString()
+                    + " must implement NoticeDialogListener");
+        }
     }
 }
