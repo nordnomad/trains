@@ -26,10 +26,10 @@ public class DatePickerFragment extends DialogFragment {
                         mListener.onDialogPositiveClick(DatePickerFragment.this);
                     }
                 }).setNegativeButton("Отмена", new OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        mListener.onDialogNegativeClick(DatePickerFragment.this);
-                    }
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                mListener.onDialogNegativeClick(DatePickerFragment.this);
+            }
         });
         return builder.create();
     }

@@ -1,22 +1,19 @@
 package com.example.project1;
 
 import android.content.Context;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Filter;
 import android.widget.Filterable;
-import android.widget.TextView;
+import com.example.project1.entities.Station;
 
 import java.util.List;
 
 import static com.example.project1.ServerConnector.listCities;
 
-public class CitiesAutoCompleteAdapter extends ArrayAdapter<Station> implements Filterable {
+public class StationsAutoCompleteAdapter extends ArrayAdapter<Station> implements Filterable {
     private List<Station> stations;
 
-    public CitiesAutoCompleteAdapter(Context context, int textViewResourceId) {
+    public StationsAutoCompleteAdapter(Context context, int textViewResourceId) {
         super(context, textViewResourceId);
     }
 

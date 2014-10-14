@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical"
+              android:layout_width="fill_parent"
+              android:layout_height="fill_parent"
+        >
+    <AutoCompleteTextView
+            android:id="@+id/city_from"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            />
+    <AutoCompleteTextView android:id="@+id/city_to" android:layout_width="fill_parent"
+                          android:layout_height="wrap_content"/>
+
+    <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="63dp" android:layout_gravity="center">
+        <Button
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="Дата отправления"
+                android:id="@+id/date"
+                android:layout_gravity="left|center_vertical"
+                android:onClick="showDatePickerDialog"/>
+        <Button
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="Время отправления с" android:onClick="showTimePickerDialog"
+                android:id="@+id/time" android:layout_gravity="center"/>
+        <CheckBox
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="Туда и обратно"
+                android:id="@+id/both_directions" android:layout_gravity="center"/>
+    </LinearLayout>
+    <Button
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="Поиск поездов"
+            android:id="@+id/search_train" android:layout_gravity="center"
+            android:onClick="searchTrains"/>
+    <FrameLayout
+            android:id="@+id/frgmCont"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+    </FrameLayout>
+</LinearLayout>
+

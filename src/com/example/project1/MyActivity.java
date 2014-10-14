@@ -9,9 +9,11 @@ import android.webkit.*;
 import android.widget.AdapterView;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
+import com.example.project1.entities.Station;
 
 import static android.R.layout.simple_dropdown_item_1line;
 import static android.widget.AdapterView.OnItemClickListener;
+import static com.example.project1.RestURL.ROOT_URL;
 
 public class MyActivity extends Activity implements NoticeDialogListener {
 
@@ -35,7 +37,7 @@ public class MyActivity extends Activity implements NoticeDialogListener {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
         stationFromView = (AutoCompleteTextView) findViewById(R.id.city_from);
-        CitiesAutoCompleteAdapter adapterFrom = new CitiesAutoCompleteAdapter(this, simple_dropdown_item_1line);
+        StationsAutoCompleteAdapter adapterFrom = new StationsAutoCompleteAdapter(this, simple_dropdown_item_1line);
         stationFromView.setAdapter(adapterFrom);
         stationFromView.setOnItemClickListener(new OnItemClickListener() {
             @Override
@@ -45,7 +47,7 @@ public class MyActivity extends Activity implements NoticeDialogListener {
         });
 
         stationTillView = (AutoCompleteTextView) findViewById(R.id.city_to);
-        CitiesAutoCompleteAdapter adapterTo = new CitiesAutoCompleteAdapter(this, simple_dropdown_item_1line);
+        StationsAutoCompleteAdapter adapterTo = new StationsAutoCompleteAdapter(this, simple_dropdown_item_1line);
         stationTillView.setAdapter(adapterTo);
         stationTillView.setOnItemClickListener(new OnItemClickListener() {
             @Override
@@ -56,11 +58,15 @@ public class MyActivity extends Activity implements NoticeDialogListener {
         dateButton = (Button) findViewById(R.id.date);
         timeButton = (Button) findViewById(R.id.time);
 
+
         webView = new WebView(this);
+        final CookieManager cookieManager = CookieManager.getInstance();
+        cookieManager.setAcceptCookie(true);
         webView.getSettings().setJavaScriptEnabled(true);
         webView.getSettings().setBlockNetworkImage(true);
         webView.getSettings().setDomStorageEnabled(true);
-        webView.getSettings().setUserAgentString("Mozilla/5.0 (Windows NT 6.1; Intel Mac OS X 10.6; rv:7.0.1) Gecko/20100101 Firefox/7.0.1");
+        webView.getSettings().setUserAgentString("Mozilla/5.0 (Windows NT 6.2; WOW64; rv:22.0) Gecko/20100101 Firefox/22.0");
+
         webView.setWebViewClient(new WebViewClient() {
             @Override
             public void onPageFinished(WebView view, String url) {
@@ -68,6 +74,7 @@ public class MyActivity extends Activity implements NoticeDialogListener {
                 webView.loadUrl("javascript:(function() { " +
                         "console.log(window.localStorage.getItem('gv-token')) " +
                         "})()");
+                cookie = cookieManager.getCookie(ROOT_URL);
             }
 
         });
@@ -77,11 +84,9 @@ public class MyActivity extends Activity implements NoticeDialogListener {
                 return true;
             }
         });
-        webView.loadUrl("http://booking.uz.gov.ua/ru/");
+        webView.loadUrl(ROOT_URL);
 
-        CookieManager cookieManager = CookieManager.getInstance();
-        cookieManager.setAcceptCookie(true);
-        cookie = cookieManager.getCookie("http://booking.uz.gov.ua/ru/");
+
     }
 
     public void showDatePickerDialog(View v) {
@@ -100,7 +105,6 @@ public class MyActivity extends Activity implements NoticeDialogListener {
         FragmentTransaction ft = getFragmentManager().beginTransaction();
         ft.add(R.id.frgmCont, trains, "trains");
         ft.commit();
-     //   ServerConnector.searchTrains(stationFromId, stationTillId, dateDep, timeDep, gvToken, cookie);
     }
 
     @Override

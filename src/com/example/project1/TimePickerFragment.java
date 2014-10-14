@@ -32,7 +32,7 @@ public class TimePickerFragment extends DialogFragment {
     }
 
     public String getTime() {
-        return String.format("%02d:%02d", timePicker.getCurrentHour(), timePicker.getCurrentMinute());
+        return String.format("%02d:00", timePicker.getCurrentHour()/*, timePicker.getCurrentMinute()*/);
     }
 
     @Override
